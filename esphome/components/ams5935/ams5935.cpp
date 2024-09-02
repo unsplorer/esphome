@@ -245,7 +245,9 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   const uint64_t now = millis();
 
   if (!read_requested) {
-    i2c::ErrorCode write_err = this->write(this->single_measurment_command_, 1, true);
+    uint8_t read_request_data[1];
+    read_request_data[0] = this->single_measurment_command_;
+    i2c::ErrorCode write_err = this->write(read_request_data, 1, true);
     read_requested = true;
   }
 
