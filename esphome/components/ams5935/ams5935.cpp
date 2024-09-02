@@ -255,8 +255,10 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
     if (err != i2c::ERROR_OK) {
       this->status_ = -1;
     } else {
-      *pressure_counts = ((uint32_t) buffer[1] << 16) | ((uint32_t) buffer[2] << 8) | ((uint32_t) buffer[3]);
-      *temperature_counts = ((uint32_t) buffer[4] << 16) | ((uint32_t) buffer[5] << 8) | ((uint32_t) buffer[6]);
+      *pressure_counts =
+          ((uint32_t) this->buffer_[1] << 16) | ((uint32_t) this->buffer_[2] << 8) | ((uint32_t) this->buffer_[3]);
+      *temperature_counts =
+          ((uint32_t) this->buffer_[4] << 16) | ((uint32_t) this->buffer_[5] << 8) | ((uint32_t) this->buffer_[6]);
       this->status_ = 1;
     }
     read_requested = false;
