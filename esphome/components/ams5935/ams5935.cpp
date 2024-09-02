@@ -245,7 +245,7 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   const uint64_t now = millis();
 
   if (!read_requested) {
-    this.write(this->single_measurment_command_);
+    this->write(this->single_measurment_command_);
     read_requested = true;
   }
 
