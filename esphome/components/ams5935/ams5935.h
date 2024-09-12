@@ -5,8 +5,6 @@
 #include "esphome/core/hal.h"
 #include "esphome/components/i2c/i2c.h"
 #include "esphome/components/sensor/sensor.h"
-#include "Wire.h"
-#include "Arduino.h"
 
 namespace esphome {
 namespace ams5935 {
