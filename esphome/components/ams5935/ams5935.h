@@ -10,6 +10,12 @@
 
 namespace esphome {
 namespace ams5935 {
+
+enum Status {
+  SUCCESS,
+  FAILURE
+};
+
 enum Transducer {
   AMS5935_0002_D,
   AMS5935_0005_D,
@@ -108,9 +114,9 @@ class Ams5935 : public PollingComponent, public sensor::Sensor, public i2c::I2CD
   // conversion millibar to PA
   const float mbar_to_pa_ = 100.0f;
   // digital output at maximum pressure
-  const int dig_out_p_max_ = 1 << 24;
+  const float dig_out_p_max_ = 0.9 * 16777216.0;
   // digital output at minimum pressure
-  const float dig_out_p_min_ = dig_out_p_max_ * 0.1;
+  const float dig_out_p_min_ = 0.1 * 16777216.0;
   // min and max pressures, millibar
   const int ams5935_0002_d_p_min_ = 0;
   const int ams5935_0002_d_p_max_ = 2;
