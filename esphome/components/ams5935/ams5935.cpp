@@ -72,10 +72,9 @@ int Ams5935::read_sensor_() {
   // get pressure and temperature counts off transducer
   this->status_ = read_bytes_(&this->pressure_counts_, &this->temperature_counts_);
   // convert counts to pressure, milliBar
+  const float sensor_sensitivity = (((float) (this->dig_out_p_max_ - this->dig_out_p_min_)) / ((float) (this->p_max_ - this->p_min_)));
   this->data_.pressure_pa_ =
-      (((float) (this->pressure_counts_ - this->dig_out_p_min_)) /
-           (((float) (this->dig_out_p_max_ - this->dig_out_p_min_)) / ((float) (this->p_max_ - this->p_min_))) +
-       (float) this->p_min_);
+      (((float) (this->pressure_counts_ - this->dig_out_p_min_) / sensor_sensitivity) + (float) this->p_min_);
   // convert counts to temperature, C
   this->data_.temperature_c_ = (float) (((this->temperature_counts_ * 165) / 16777216.0)) - 40.0f;
   return this->status_;
