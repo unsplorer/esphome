@@ -32,6 +32,7 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   if (!read_requested) {
     uint8_t read_request_data[1];
     read_request_data[0] = this->single_measurment_command_;
+    ESP_LOGD(TAG, "Writing I2C data: 0x%02X", read_request_data[0]);
     i2c::ErrorCode write_err = this->write(read_request_data, 1, true);
     if (write_err){
       ESP_LOGE(TAG, "Error sending measurment request data :%d", write_err);
@@ -46,6 +47,12 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
     if (err != i2c::ERROR_OK) {
       this->status_ = FAILURE;
     } else {
+      // log the read buffer for debug
+      ESP_LOGD(TAG,"Read I2C data:");
+      for (size_t i = 0; i < sizeof(this->buffer_); ++i){
+        ESP_LOGD(TAG,"0x%02X", this->buffer_[i]);
+      }
+
       // read the pressure and temperature data from the databuffer
       *pressure_counts =
           ((uint32_t) this->buffer_[1] << 16) | ((uint32_t) this->buffer_[2] << 8) | ((uint32_t) this->buffer_[3]);
@@ -288,8 +295,6 @@ void Ams5935::update() {
     float pressure = this->get_pressure_pa_();
 
     ESP_LOGD(TAG, "Got pressure=%.3fmilliBar temperature=%.1f°C", pressure, temperature);
-    ESP_LOGD(TAG, "Raw Pressure Data: %X", this->pressure_counts_);
-    ESP_LOGD(TAG, "Raw Temperature Data: %X", this->temperature_counts_);
     if (this->temperature_sensor_ != nullptr)
       this->temperature_sensor_->publish_state(temperature);
     if (this->pressure_sensor_ != nullptr)
