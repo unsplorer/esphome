@@ -20,7 +20,7 @@ int Ams5935::begin_() {
     }
     delay(10);
   }
-  return status_;
+  return this->status_;
 }
 
 /* reads pressure and temperature and returns values in counts */
@@ -70,7 +70,7 @@ int Ams5935::read_sensor_() {
            (((float) (this->dig_out_p_max_ - this->dig_out_p_min_)) / ((float) (this->p_max_ - this->p_min_))) +
        (float) this->p_min_);
   // convert counts to temperature, C
-  this->data_.temperature_c_ = (float) (((this->temperature_counts_ * 165) / (float) dig_out_p_max_)) - 40.0f;
+  this->data_.temperature_c_ = (float) (((this->temperature_counts_ * 165) / 16777216.0)) - 40.0f;
   return this->status_;
 }
 
@@ -283,17 +283,21 @@ void Ams5935::setup() {
 }
 
 void Ams5935::update() {
-  this->read_sensor_();
-  float temperature = this->get_temperature_c_();
-  float pressure = this->get_pressure_pa_();
+  if (this->read_sensor_() == SUCCESS){
+    float temperature = this->get_temperature_c_();
+    float pressure = this->get_pressure_pa_();
 
-  ESP_LOGD(TAG, "Got pressure=%.3fmBar %.3fpa temperature=%.1f°C", pressure, pressure * this->mbar_to_pa_, temperature);
-  ESP_LOGD(TAG, "Raw Pressure Data: %X", this->pressure_counts_);
-  ESP_LOGD(TAG, "Raw Temperature Data: %X", this->temperature_counts_);
-  if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->publish_state(temperature);
-  if (this->pressure_sensor_ != nullptr)
-    this->pressure_sensor_->publish_state(pressure * this->mbar_to_pa_);
+    ESP_LOGD(TAG, "Got pressure=%.3fmilliBar temperature=%.1f°C", pressure, temperature);
+    ESP_LOGD(TAG, "Raw Pressure Data: %X", this->pressure_counts_);
+    ESP_LOGD(TAG, "Raw Temperature Data: %X", this->temperature_counts_);
+    if (this->temperature_sensor_ != nullptr)
+      this->temperature_sensor_->publish_state(temperature);
+    if (this->pressure_sensor_ != nullptr)
+      this->pressure_sensor_->publish_state(pressure);
+  } else{
+    ESP_LOGE(TAG,"Failed to read from sensor");
+  }
+
 }
 
 void Ams5935::dump_config() {
