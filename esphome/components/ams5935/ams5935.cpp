@@ -288,6 +288,7 @@ void Ams5935::update() {
   ESP_LOGD(TAG, "Got pressure=%.3fmBar %.3fpa temperature=%.1f°C", pressure, pressure * this->mbar_to_pa_, temperature);
   ESP_LOGD(TAG, "Raw Pressure Data: %X", this->pressure_counts_);
   ESP_LOGD(TAG, "Raw Temperature Data: %X", this->temperature_counts_);
+  ESP_LOGD(TAG, "Raw Data Buffer: %X", this->buffer_);
   if (this->temperature_sensor_ != nullptr)
     this->temperature_sensor_->publish_state(temperature);
   if (this->pressure_sensor_ != nullptr)
