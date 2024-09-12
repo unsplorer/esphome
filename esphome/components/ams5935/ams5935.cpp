@@ -259,8 +259,11 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
     } else {
       *pressure_counts =
           ((uint32_t) this->buffer_[1] << 16) | ((uint32_t) this->buffer_[2] << 8) | ((uint32_t) this->buffer_[3]);
+      ESP_LOGD(TAG, "Raw Pressure Data: %X", pressure_counts);
       *temperature_counts =
           ((uint32_t) this->buffer_[4] << 16) | ((uint32_t) this->buffer_[5] << 8) | ((uint32_t) this->buffer_[6]);
+      ESP_LOGD(TAG, "Raw Temperature Data: %X", temperature_counts);
+
       this->status_ = 1;
     }
     read_requested = false;
