@@ -259,10 +259,8 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
     } else {
       *pressure_counts =
           ((uint32_t) this->buffer_[1] << 16) | ((uint32_t) this->buffer_[2] << 8) | ((uint32_t) this->buffer_[3]);
-      ESP_LOGD(TAG, "Raw Pressure Data: %X", pressure_counts);
       *temperature_counts =
           ((uint32_t) this->buffer_[4] << 16) | ((uint32_t) this->buffer_[5] << 8) | ((uint32_t) this->buffer_[6]);
-      ESP_LOGD(TAG, "Raw Temperature Data: %X", temperature_counts);
 
       this->status_ = 1;
     }
@@ -288,7 +286,6 @@ void Ams5935::update() {
   ESP_LOGD(TAG, "Got pressure=%.3fmBar %.3fpa temperature=%.1f°C", pressure, pressure * this->mbar_to_pa_, temperature);
   ESP_LOGD(TAG, "Raw Pressure Data: %X", this->pressure_counts_);
   ESP_LOGD(TAG, "Raw Temperature Data: %X", this->temperature_counts_);
-  ESP_LOGD(TAG, "Raw Data Buffer: %X", this->buffer_);
   if (this->temperature_sensor_ != nullptr)
     this->temperature_sensor_->publish_state(temperature);
   if (this->pressure_sensor_ != nullptr)
