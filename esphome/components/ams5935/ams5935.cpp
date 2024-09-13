@@ -303,8 +303,9 @@ void Ams5935::update() {
   if (this->read_sensor_() == SUCCESS) {
     float temperature = this->get_temperature_c_();
     float pressure = this->get_pressure_pa_();
-
-    ESP_LOGD(TAG, "Got pressure=%.3fmilliBar temperature=%.1f°C", pressure, temperature);
+    // pressure will be in millibar, we need to convert to pascals as thats the default unit esphome uses
+    pressure = pressure * 100;
+    ESP_LOGD(TAG, "Got pressure=%.3fPa temperature=%.1f°C", pressure, temperature);
     if (this->temperature_sensor_ != nullptr)
       this->temperature_sensor_->publish_state(temperature);
     if (this->pressure_sensor_ != nullptr)
