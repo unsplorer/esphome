@@ -4,6 +4,7 @@ import esphome.config_validation as cv
 from esphome.const import (
     CONF_ID,
     CONF_MODEL,
+    CONF_OVERSAMPLING,
     CONF_PRESSURE,
     CONF_TEMPERATURE,
     CONF_UPDATE_INTERVAL,
@@ -70,7 +71,7 @@ TRANSDUCER_TYPE = {
 }
 
 Ams5935 = ams5935_ns.class_("Ams5935", cg.PollingComponent, i2c.I2CDevice)
-CONF_OVERSAMPLING = "oversampling"
+# CONF_OVERSAMPLING = "oversampling"
 CONFIG_SCHEMA = (
     cv.Schema(
         {

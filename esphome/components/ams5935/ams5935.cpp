@@ -32,7 +32,7 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   uint8_t read_request_command;
 
   if (this->oversampling_) {
-    read_delay = this->four_fold_oversampling_processing_time;
+    read_delay = this->four_fold_oversampling_processing_time_;
     read_request_command = this->four_fold_oversampling_command_;
   } else {
     read_delay = this->single_measurment_processing_time_;
@@ -59,10 +59,9 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
     } else {
       // log the read buffer for debug
       ESP_LOGV(TAG, "Read I2C data:");
-      for (size_t i = 0; i < sizeof(this->buffer_); ++i) {
-        ESP_LOGV(TAG, "0x%02X", this->buffer_[i]);
+      for (auto &byte : this->buffer_) {
+        ESP_LOGV(TAG, "0x%02X", byte);
       }
-
       // read the pressure and temperature data from the databuffer
       *pressure_counts =
           ((uint32_t) this->buffer_[1] << 16) | ((uint32_t) this->buffer_[2] << 8) | ((uint32_t) this->buffer_[3]);

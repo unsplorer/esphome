@@ -95,8 +95,8 @@ class Ams5935 : public PollingComponent, public sensor::Sensor, public i2c::I2CD
   const uint8_t four_fold_oversampling_command_ = 0xAD;
   bool oversampling_;
   // read request wait times:
-  const uint8_t single_measurment_processing_time_ = 4;       // 4ms
-  const uint8_t four_fold_oversampling_processing_time = 15;  // 15ms
+  const uint8_t single_measurment_processing_time_ = 4;        // 4ms
+  const uint8_t four_fold_oversampling_processing_time_ = 15;  // 15ms
   // maximum number of attempts to talk to sensor
   const size_t max_attempts_ = 10;
   // track success of reading from sensor
