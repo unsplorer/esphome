@@ -32,9 +32,9 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   if (!read_requested) {
     uint8_t read_request_data[1];
     read_request_data[0] = this->single_measurment_command_;
-    ESP_LOGD(TAG, "Writing I2C data: 0x%02X", read_request_data[0]);
+    ESP_LOGV(TAG, "Writing I2C data: 0x%02X", read_request_data[0]);
     i2c::ErrorCode write_err = this->write(read_request_data, 1, true);
-    if (write_err){
+    if (write_err) {
       ESP_LOGE(TAG, "Error sending measurment request data :%d", write_err);
     }
     read_requested = true;
@@ -48,9 +48,9 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
       this->status_ = FAILURE;
     } else {
       // log the read buffer for debug
-      ESP_LOGD(TAG,"Read I2C data:");
-      for (size_t i = 0; i < sizeof(this->buffer_); ++i){
-        ESP_LOGD(TAG,"0x%02X", this->buffer_[i]);
+      ESP_LOGV(TAG, "Read I2C data:");
+      for (size_t i = 0; i < sizeof(this->buffer_); ++i) {
+        ESP_LOGV(TAG, "0x%02X", this->buffer_[i]);
       }
 
       // read the pressure and temperature data from the databuffer
@@ -72,7 +72,8 @@ int Ams5935::read_sensor_() {
   // get pressure and temperature counts off transducer
   this->status_ = read_bytes_(&this->pressure_counts_, &this->temperature_counts_);
   // convert counts to pressure, milliBar
-  const float sensor_sensitivity = (((float) (this->dig_out_p_max_ - this->dig_out_p_min_)) / ((float) (this->p_max_ - this->p_min_)));
+  const float sensor_sensitivity =
+      (((float) (this->dig_out_p_max_ - this->dig_out_p_min_)) / ((float) (this->p_max_ - this->p_min_)));
   this->data_.pressure_pa_ =
       (((float) (this->pressure_counts_ - this->dig_out_p_min_) / sensor_sensitivity) + (float) this->p_min_);
   // convert counts to temperature, C
@@ -289,7 +290,7 @@ void Ams5935::setup() {
 }
 
 void Ams5935::update() {
-  if (this->read_sensor_() == SUCCESS){
+  if (this->read_sensor_() == SUCCESS) {
     float temperature = this->get_temperature_c_();
     float pressure = this->get_pressure_pa_();
 
@@ -298,10 +299,9 @@ void Ams5935::update() {
       this->temperature_sensor_->publish_state(temperature);
     if (this->pressure_sensor_ != nullptr)
       this->pressure_sensor_->publish_state(pressure);
-  } else{
-    ESP_LOGE(TAG,"Failed to read from sensor");
+  } else {
+    ESP_LOGE(TAG, "Failed to read from sensor");
   }
-
 }
 
 void Ams5935::dump_config() {
