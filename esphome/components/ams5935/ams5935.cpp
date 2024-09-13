@@ -28,10 +28,20 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   static uint64_t read_request_time = 0;
   static bool read_requested = false;
   const uint64_t now = millis();
+  uint8_t read_delay;
+  uint8_t read_request_command;
+
+  if (this->oversampling_) {
+    read_delay = this->four_fold_oversampling_processing_time;
+    read_request_command = this->four_fold_oversampling_command_;
+  } else {
+    read_delay = this->single_measurment_processing_time_;
+    read_request_command = this->single_measurment_command_;
+  }
 
   if (!read_requested) {
     uint8_t read_request_data[1];
-    read_request_data[0] = this->single_measurment_command_;
+    read_request_data[0] = read_request_command;
     ESP_LOGV(TAG, "Writing I2C data: 0x%02X", read_request_data[0]);
     i2c::ErrorCode write_err = this->write(read_request_data, 1, true);
     if (write_err) {
@@ -42,7 +52,7 @@ int Ams5935::read_bytes_(uint32_t *pressure_counts, uint32_t *temperature_counts
   }
 
   // wait for the ams5935 to process // non-blocking
-  if (read_requested && (now - read_request_time > this->single_measurment_processing_time_)) {
+  if (read_requested && (now - read_request_time > read_delay)) {
     i2c::ErrorCode err = this->read(this->buffer_, sizeof(this->buffer_));
     if (err != i2c::ERROR_OK) {
       this->status_ = FAILURE;

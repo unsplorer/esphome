@@ -9,10 +9,7 @@
 namespace esphome {
 namespace ams5935 {
 
-enum Status {
-  SUCCESS,
-  FAILURE
-};
+enum Status { SUCCESS, FAILURE };
 
 enum Transducer {
   AMS5935_0002_D,
@@ -72,6 +69,7 @@ class Ams5935 : public PollingComponent, public sensor::Sensor, public i2c::I2CD
   void set_temperature_sensor(sensor::Sensor *temperature_sensor) { temperature_sensor_ = temperature_sensor; }
   void set_pressure_sensor(sensor::Sensor *pressure_sensor) { pressure_sensor_ = pressure_sensor; }
   void set_transducer_type(Transducer model);
+  void set_oversampling(bool oversampling) { oversampling_ = oversampling; }
 
   // transducer
  protected:
@@ -95,6 +93,7 @@ class Ams5935 : public PollingComponent, public sensor::Sensor, public i2c::I2CD
   //    0xAD for four-fold oversampling.
   const uint8_t single_measurment_command_ = 0xAA;
   const uint8_t four_fold_oversampling_command_ = 0xAD;
+  bool oversampling_;
   // read request wait times:
   const uint8_t single_measurment_processing_time_ = 4;       // 4ms
   const uint8_t four_fold_oversampling_processing_time = 15;  // 15ms

@@ -70,12 +70,13 @@ TRANSDUCER_TYPE = {
 }
 
 Ams5935 = ams5935_ns.class_("Ams5935", cg.PollingComponent, i2c.I2CDevice)
-
+CONF_OVERSAMPLING = "oversampling"
 CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(Ams5935),
             cv.Required(CONF_MODEL): cv.enum(TRANSDUCER_TYPE, upper=True),
+            cv.Optional(CONF_OVERSAMPLING, default=False): cv.boolean,
             cv.Optional(CONF_PRESSURE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PASCAL,
                 accuracy_decimals=0,
