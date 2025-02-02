@@ -13,6 +13,7 @@ from esphome.const import (
     UNIT_DEGREES,
     ICON_SCREEN_ROTATION,
     CONF_UPDATE_INTERVAL,
+    CONF_TEMPERATURE,
 )
 
 DEPENDENCIES = ["i2c"]
@@ -89,3 +90,6 @@ async def to_code(config):
     if CONF_HEADING in config:
         sens = await sensor.new_sensor(config[CONF_HEADING])
         cg.add(var.set_heading_sensor(sens))
+    if CONF_TEMPERATURE in config:
+        sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
+        cg.add(var.set_temperature_sensor(sens))   

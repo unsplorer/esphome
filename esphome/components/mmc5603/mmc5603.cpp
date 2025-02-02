@@ -89,6 +89,7 @@ void MMC5603Component::dump_config() {
   LOG_SENSOR("  ", "Y Axis", this->y_sensor_);
   LOG_SENSOR("  ", "Z Axis", this->z_sensor_);
   LOG_SENSOR("  ", "Heading", this->heading_sensor_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
 }
 
 float MMC5603Component::get_setup_priority() const { return setup_priority::DATA; }
@@ -143,10 +144,18 @@ void MMC5603Component::update() {
   raw_z |= buffer[7] << 4;
   raw_z |= buffer[8] << 0;
 
+  // static const uint8_t MMC56X3_OUT_TEMP = 0x09; address of temperature data
+  uint8_t raw_t = 0;
+  if (!this->read_byte(MMC56X3_OUT_TEMP, &raw_t)) {
+    this->status_set_warning();
+    return;
+  }
+
+  const float temperature = raw_t * 0.8;
   const float z = 0.0625 * (raw_z - 524288);
 
   const float heading = atan2f(0.0f - x, y) * 180.0f / M_PI;
-  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f°", x, y, z, heading);
+  ESP_LOGD(TAG, "Got x=%0.02fµT y=%0.02fµT z=%0.02fµT heading=%0.01f° temperature=%0.01f°C", x, y, z, heading);
 
   if (this->x_sensor_ != nullptr)
     this->x_sensor_->publish_state(x);
