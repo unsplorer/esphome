@@ -14,6 +14,8 @@ from esphome.const import (
     ICON_SCREEN_ROTATION,
     CONF_UPDATE_INTERVAL,
     CONF_TEMPERATURE,
+    UNIT_CELSIUS,
+    
 )
 
 DEPENDENCIES = ["i2c"]
@@ -56,6 +58,11 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_FIELD_STRENGTH_Y): field_strength_schema,
             cv.Optional(CONF_FIELD_STRENGTH_Z): field_strength_schema,
             cv.Optional(CONF_HEADING): heading_schema,
+            cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
+            unit_of_measurement=UNIT_CELSIUS,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+        ),
         }
     )
     .extend(cv.polling_component_schema("60s"))
