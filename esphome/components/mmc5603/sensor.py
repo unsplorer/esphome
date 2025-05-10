@@ -9,6 +9,7 @@ from esphome.const import (
     CONF_ID,
     ICON_MAGNET,
     STATE_CLASS_MEASUREMENT,
+    DEVICE_CLASS_TEMPERATURE,
     UNIT_MICROTESLA,
     UNIT_DEGREES,
     ICON_SCREEN_ROTATION,
@@ -61,6 +62,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
             accuracy_decimals=1,
+            device_class=DEVICE_CLASS_TEMPERATURE,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         }
