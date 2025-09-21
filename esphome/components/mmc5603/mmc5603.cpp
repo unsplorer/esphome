@@ -42,7 +42,7 @@ void MMC5603Component::setup() {
     this->mark_failed();
     return;
   }
-  ESP_LOGCONFIG(TAG, "read Chip id %d",id);
+  ESP_LOGE(TAG, "read Chip id %d",id);
   if (id != MMC56X3_CHIP_ID) {
     ESP_LOGCONFIG(TAG, "Chip Wrong");
     this->error_code_ = ID_REGISTERS;
