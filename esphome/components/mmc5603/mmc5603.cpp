@@ -10,7 +10,7 @@ static const uint8_t MMC5603_ADDRESS = 0x30;
 static const uint8_t MMC56X3_PRODUCT_ID = 0x39;
 
 static const uint8_t MMC56X3_DEFAULT_ADDRESS = 0x30;
-static const uint8_t MMC56X3_CHIP_ID = 0x00;
+static const uint8_t MMC56X3_CHIP_ID = 0x10;
 
 static const uint8_t MMC56X3_ADDR_XOUT0 = 0x00;
 static const uint8_t MMC56X3_ADDR_XOUT1 = 0x01;
@@ -42,12 +42,13 @@ void MMC5603Component::setup() {
     this->mark_failed();
     return;
   }
-  ESP_LOGE(TAG, "read Chip id %d",id);
   if (id != MMC56X3_CHIP_ID) {
+    if (id != 0x00){
     ESP_LOGCONFIG(TAG, "Chip Wrong");
     this->error_code_ = ID_REGISTERS;
     this->mark_failed();
     return;
+    }
   }
 
   // Software Reset. Writing “1”will cause the part to reset, similar to power-up. It will clear all registers 
