@@ -1,6 +1,5 @@
 // TFT.cpp
 #include "TFT.h"
-#include "esphome/components/display/display.h"
 
 namespace esphome {
 namespace mpsmv2_tft {
@@ -9,7 +8,8 @@ static const char *const TAG = "MPSMV2_tft";
 static const uint32_t LATCH_MASK = (1 << PIXEL_LATCH_PIN);
 static const uint32_t CMD_MASK = (1 << COMMAND_LATCH_PIN);
 
-void MPSMV2_TFT::setup() {
+void MPSMV2_TFT::begin() {
+  ESP_LOGI("mpsmv2_tft", "Running init sequence");
   SPI.begin();
   SPI.setFrequency(8000000);  // 8 mhz
   SPI.setDataMode(SPI_MODE0);
@@ -30,6 +30,9 @@ void MPSMV2_TFT::setup() {
   this->display_send_command(MADCTL, 0x00, 0x00);    // portrait, no swap
   this->display_send_command(PRCH_SET, 0x82, 0x20);  // panel timing
   this->display_send_command(SLEEP_OUT);
+  delay(20);
+  this->set_rotation(this->_rotation);
+  this->fillScreen(0);
   this->display_send_command(DISPLAY_OFF);
 }
 
@@ -38,8 +41,11 @@ void MPSMV2_TFT::dump_config() {
   ESP_LOGCONFIG("mpsmv2_tft", "Resolution: %dx%d", GRAM_WIDTH, GRAM_HEIGHT);
 }
 
-void MPSMV2_TFT::update() {
-  // Nothing to do here for now
+void MPSMV2_TFT::update() {}
+
+void MPSMV2_TFT::setup() {
+  this->begin();
+  this->displayOn();
 }
 
 void MPSMV2_TFT::display_send_command(uint8_t command) {
@@ -77,7 +83,9 @@ void MPSMV2_TFT::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) 
 
 void MPSMV2_TFT::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) { this->fillRect(x, y, w, 1, color); }
 
-void MPSMV2_TFT::draw_pixel_at(int x, int y, Color color) {
+void MPSMV2_TFT::draw_pixel_at(int x, int y, Color color) { this->draw_absolute_pixel_internal(x, y, color); }
+
+void MPSMV2_TFT::draw_absolute_pixel_internal(int x, int y, Color color) {
   if (x < 0 || y < 0 || x >= _width || y >= _height)
     return;
 
@@ -159,27 +167,33 @@ void MPSMV2_TFT::setMADCTL(uint8_t value) {
 
   CMD_OFF;
 }
+void MPSMV2_TFT::set_rotation(uint16 degrees) {
+  uint8_t madctl = 0x00;
 
-void MPSMV2_TFT::set_rotation(uint8_t r) {
-  uint8_t madctl = 0x00;  // default
-  switch (r & 0x03) {     // m = 0..3
-    case 0:               // portrait
+  switch (degrees) {
+    case 0:  // portrait
       madctl = 0x00;
       this->_width = GRAM_WIDTH;
       this->_height = GRAM_HEIGHT;
       break;
-    case 1:  // landscape -90°
+    case 90:  // landscape -90°
       madctl = 0xA0;
       this->_width = GRAM_HEIGHT;
       this->_height = GRAM_WIDTH;
       break;
-    case 2:  // portrait mirrored X
+    case 180:  // portrait mirrored X
       madctl = 0x20;
+      this->_width = GRAM_WIDTH;
+      this->_height = GRAM_HEIGHT;
+      break;
+    case 270:  // portrait mirrored Y
+      madctl = 0x40;
       this->_width = GRAM_HEIGHT;
       this->_height = GRAM_WIDTH;
       break;
-    case 3:  // portrait mirrored Y
-      madctl = 0x40;
+    default:
+      ESP_LOGW("mpsmv2_tft", "Invalid rotation %d, defaulting to 0", degrees);
+      madctl = 0x00;
       this->_width = GRAM_WIDTH;
       this->_height = GRAM_HEIGHT;
       break;
@@ -190,7 +204,41 @@ void MPSMV2_TFT::set_rotation(uint8_t r) {
   this->display_send_command(DISPLAY_OFF);
   delay(50);
   this->display_send_command(DISPLAY_ON);
+
+  ESP_LOGI("mpsmv2_tft", "Rotation set to %d° (MADCTL=0x%02X)", degrees, madctl);
 }
+
+// void MPSMV2_TFT::set_rotation(uint8_t r) {
+//   uint8_t madctl = 0x00;  // default
+//   switch (r & 0x03) {     // m = 0..3
+//     case 0:               // portrait
+//       madctl = 0x00;
+//       this->_width = GRAM_WIDTH;
+//       this->_height = GRAM_HEIGHT;
+//       break;
+//     case 1:  // landscape -90°
+//       madctl = 0xA0;
+//       this->_width = GRAM_HEIGHT;
+//       this->_height = GRAM_WIDTH;
+//       break;
+//     case 2:  // portrait mirrored X
+//       madctl = 0x20;
+//       this->_width = GRAM_HEIGHT;
+//       this->_height = GRAM_WIDTH;
+//       break;
+//     case 3:  // portrait mirrored Y
+//       madctl = 0x40;
+//       this->_width = GRAM_WIDTH;
+//       this->_height = GRAM_HEIGHT;
+//       break;
+//   }
+
+//   this->setMADCTL(madctl);
+//   delay(50);
+//   this->display_send_command(DISPLAY_OFF);
+//   delay(50);
+//   this->display_send_command(DISPLAY_ON);
+// }
 
 void MPSMV2_TFT::write_data_rgb(uint16_t color, uint32_t repeats) {
   for (uint32_t i = 0; i < repeats; i++) {

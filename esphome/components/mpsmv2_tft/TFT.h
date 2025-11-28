@@ -2,7 +2,7 @@
 #pragma once
 #include <SPI.h>
 #include "gpio.h"
-#include "esphome/components/display/display.h"
+#include "esphome/components/display/display_buffer.h"
 
 namespace esphome {
 namespace mpsmv2_tft {
@@ -46,8 +46,9 @@ constexpr int GRAM_WIDTH = 480;
 class MPSMV2_TFT;
 using mpsmv2_tft_writer_t = display::DisplayWriter<MPSMV2_TFT>;
 
-class MPSMV2_TFT : public display::Display {
+class MPSMV2_TFT : public display::DisplayBuffer {
  private:
+  uint16_t _rotation = 90;
   uint16_t _width = GRAM_WIDTH;
   uint16_t _height = GRAM_HEIGHT;
   void write_data_rgb(uint16_t color, uint32_t repeats);
@@ -74,7 +75,9 @@ class MPSMV2_TFT : public display::Display {
   int get_height_internal() override { return this->_height; };
   int get_width_internal() override { return this->_width; };
   void draw_pixel_at(int x, int y, Color color) override;
-  void set_rotation(uint8_t r);
+  void draw_absolute_pixel_internal(int x, int y, Color color) override;
+
+  void set_rotation(uint16 r);
   void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
   void fillScreen(uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
