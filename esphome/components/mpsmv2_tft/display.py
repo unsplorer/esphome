@@ -1,9 +1,5 @@
 import esphome.codegen as cg
-from esphome.components.display import (
-    BASIC_DISPLAY_SCHEMA,
-    DisplayBuffer,
-    register_display,
-)
+from esphome.components.display import BASIC_DISPLAY_SCHEMA, Display, register_display
 import esphome.config_validation as cv
 from esphome.const import CONF_ID, CONF_LAMBDA, CONF_ROTATION
 
@@ -11,7 +7,7 @@ print("Loaded external mpsmv2_tft component!")
 AUTO_LOAD = ["display"]
 
 mpsmv2_tft_ns = cg.esphome_ns.namespace("mpsmv2_tft")
-MPSMV2_TFT = mpsmv2_tft_ns.class_("MPSMV2_TFT", cg.PollingComponent, DisplayBuffer)
+MPSMV2_TFT = mpsmv2_tft_ns.class_("MPSMV2_TFT", cg.PollingComponent, Display)
 
 # CONFIG_SCHEMA = BASIC_DISPLAY_SCHEMA.extend(
 #     {

@@ -11,7 +11,7 @@ static const uint32_t CMD_MASK = (1 << COMMAND_LATCH_PIN);
 void MPSMV2_TFT::begin() {
   ESP_LOGI("mpsmv2_tft", "Running init sequence");
   SPI.begin();
-  SPI.setFrequency(8000000);  // 8 mhz
+  SPI.setFrequency(40000000);  // 8 mhz
   SPI.setDataMode(SPI_MODE0);
   SPI.setBitOrder(MSBFIRST);
 
@@ -41,7 +41,11 @@ void MPSMV2_TFT::dump_config() {
   ESP_LOGCONFIG("mpsmv2_tft", "Resolution: %dx%d", GRAM_WIDTH, GRAM_HEIGHT);
 }
 
-void MPSMV2_TFT::update() {}
+void MPSMV2_TFT::update() {
+  if (this->writer_local_.has_value()) {
+    this->writer_local_(*this);
+  }
+}
 
 void MPSMV2_TFT::setup() {
   this->begin();
@@ -83,9 +87,9 @@ void MPSMV2_TFT::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) 
 
 void MPSMV2_TFT::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) { this->fillRect(x, y, w, 1, color); }
 
-void MPSMV2_TFT::draw_pixel_at(int x, int y, Color color) { this->draw_absolute_pixel_internal(x, y, color); }
+void MPSMV2_TFT::draw_pixel_at(int x, int y, Color color) { this->write_pixel_internal(x, y, color); }
 
-void MPSMV2_TFT::draw_absolute_pixel_internal(int x, int y, Color color) {
+void MPSMV2_TFT::write_pixel_internal(int x, int y, Color color) {
   if (x < 0 || y < 0 || x >= _width || y >= _height)
     return;
 
