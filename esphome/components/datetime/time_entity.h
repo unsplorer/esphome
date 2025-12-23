@@ -10,23 +10,19 @@
 
 #include "datetime_base.h"
 
-#ifdef USE_TIME
-#include "esphome/components/time/real_time_clock.h"
-#endif
-
-namespace esphome {
-namespace datetime {
+namespace esphome::datetime {
 
 #define LOG_DATETIME_TIME(prefix, type, obj) \
   if ((obj) != nullptr) { \
     ESP_LOGCONFIG(TAG, "%s%s '%s'", prefix, LOG_STR_LITERAL(type), (obj)->get_name().c_str()); \
-    if (!(obj)->get_icon().empty()) { \
-      ESP_LOGCONFIG(TAG, "%s  Icon: '%s'", prefix, (obj)->get_icon().c_str()); \
+    if (!(obj)->get_icon_ref().empty()) { \
+      ESP_LOGCONFIG(TAG, "%s  Icon: '%s'", prefix, (obj)->get_icon_ref().c_str()); \
     } \
   }
 
 class TimeCall;
 class TimeEntity;
+class OnTimeTrigger;
 
 struct TimeEntityRestoreState {
   uint8_t hour;
@@ -62,6 +58,7 @@ class TimeEntity : public DateTimeBase {
  protected:
   friend class TimeCall;
   friend struct TimeEntityRestoreState;
+  friend class OnTimeTrigger;
 
   virtual void control(const TimeCall &call) = 0;
 };
@@ -105,7 +102,7 @@ template<typename... Ts> class TimeSetAction : public Action<Ts...>, public Pare
  public:
   TEMPLATABLE_VALUE(ESPTime, time)
 
-  void play(Ts... x) override {
+  void play(const Ts &...x) override {
     auto call = this->parent_->make_call();
 
     if (this->time_.has_value()) {
@@ -116,22 +113,17 @@ template<typename... Ts> class TimeSetAction : public Action<Ts...>, public Pare
 };
 
 #ifdef USE_TIME
-
 class OnTimeTrigger : public Trigger<>, public Component, public Parented<TimeEntity> {
  public:
-  explicit OnTimeTrigger(time::RealTimeClock *rtc) : rtc_(rtc) {}
   void loop() override;
 
  protected:
   bool matches_(const ESPTime &time) const;
 
-  time::RealTimeClock *rtc_;
   optional<ESPTime> last_check_;
 };
-
 #endif
 
-}  // namespace datetime
-}  // namespace esphome
+}  // namespace esphome::datetime
 
 #endif  // USE_DATETIME_TIME
